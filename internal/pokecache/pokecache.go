@@ -1,6 +1,7 @@
 package pokecache
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -30,6 +31,7 @@ func GetCache() *PokeCache {
 				cache:  make(map[string]cacheEntry),
 				maxAge: 5 * time.Second,
 			}
+			go cache.cacheMaintenance()
 		}
 	}
 	return cache
@@ -44,6 +46,8 @@ func (pc *PokeCache) Write(key string, value []byte) {
 	}
 }
 
+// Read returns the value associated with the key and a boolean indicating whether the key was found.
+// If the key is expired, it will be deleted and the function will return false.
 func (pc *PokeCache) Read(key string) ([]byte, bool) {
 	pc.mu.RLock()
 	defer pc.mu.RUnlock()
@@ -75,6 +79,19 @@ func (pc *PokeCache) Clear() {
 func (pc *PokeCache) isEntryExpired(entryTime time.Time) bool {
 	pc.mu.RLock()
 	defer pc.mu.RUnlock()
-
 	return time.Since(entryTime) > pc.maxAge
+}
+
+// cacheMaintenance is a goroutine that runs in the background and removes expired entries from the cache.
+func (pc *PokeCache) cacheMaintenance() {
+ for {
+	time.Sleep(pc.maxAge)
+	pc.mu.Lock()
+	for key, entry := range pc.cache {
+		if time.Since(entry.createTime) > pc.maxAge {
+			delete(pc.cache, key)
+		}
+	}
+	pc.mu.Unlock()
+ }
 }
