@@ -11,7 +11,7 @@ type cliCommand struct {
 	//	"help": {
 	// 	description: "Prints the help menu",
 	// 	Callback: commandHelp,
-	// "exit": {
+	// "exit","q": {
 	// 	description: "Exits the Pokedex",
 	// 	Callback: commandExit,
 	// "map": {

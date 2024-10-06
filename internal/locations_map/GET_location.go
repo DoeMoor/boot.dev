@@ -2,6 +2,8 @@ package locations_map
 
 import (
 	"fmt"
+	"github.com/DoeMoor/pokedexcli/internal/pokecache"
+	"io"
 	"net/http"
 )
 
@@ -65,8 +67,6 @@ func NextLocations() error {
 
 	printLocations(loc)
 	GetURLconfig().SetURL(loc, url)
-	GetCache().write(url, loc)
-
 	return nil
 }
 
@@ -85,7 +85,7 @@ func PreviousLocation() error {
 
 	printLocations(loc)
 	GetURLconfig().SetURL(loc, url)
-	GetCache().write(url, loc)
+
 	return nil
 }
 
@@ -112,9 +112,10 @@ func getURL(direction string) (url string, err error) {
 func getLocations(url string) (locations, error) {
 	var loc locations
 
-	loc, ok := GetCache().read(url)
+	cached, ok := pokecache.GetCache().Read(url)
 	if ok {
 		fmt.Println("Cache hit")
+		loc.newLocations(cached)
 		return loc, nil
 	}
 
@@ -128,13 +129,20 @@ func getLocations(url string) (locations, error) {
 	if err != nil {
 		return locations{}, err
 	}
+
 	defer resp.Body.Close()
 
-	err = loc.newLocations(resp)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("cache write error:", err)
+	} else {
+		pokecache.GetCache().Write(url, body)
+	}
+
+	err = loc.newLocations(body)
 	if err != nil {
 		return locations{}, err
 	}
-
 	return loc, nil
 }
 
