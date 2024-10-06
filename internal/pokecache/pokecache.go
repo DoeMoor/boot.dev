@@ -1,7 +1,7 @@
 package pokecache
 
 import (
-	"fmt"
+
 	"sync"
 	"time"
 )
