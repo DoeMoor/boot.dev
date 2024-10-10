@@ -40,11 +40,16 @@ func GetCache() *PokeCache {
 	return cache
 }
 
+func (pc *PokeCache) SetMaxAge(maxAge int) {
+	pc.maxAge = time.Duration(maxAge) * time.Second
+}
+
 // Write stores the value associated with the key in the cache.
 // If the key already exists, the value will be overwritten.
+//
 //	cache[key] = cacheEntry{
-// 	createTime: time.Now(),
-// 	value:      value,
+//	createTime: time.Now(),
+//	value:      value,
 func (pc *PokeCache) Write(key string, value []byte) {
 	pc.mu.Lock()
 	defer pc.mu.Unlock()

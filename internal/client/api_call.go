@@ -10,22 +10,20 @@ import (
 	"github.com/DoeMoor/pokedexcli/internal/pokecache"
 )
 
-// accept (url string) and (scheme *T) generic pointer to Json_scheme 
+// accept (url string) and (scheme *T) generic pointer to Json_scheme
 //
-//Example:
+// Example:
+//
 //	var loc scheme.Locations
 //	err = client.ApiCall(url,&loc)
 func ApiCall[T any](url string, scheme *T) error {
 	cached, ok := pokecache.GetCache().Read(url)
 	if ok {
-
 		err := json.Unmarshal(cached, scheme)
 		fmt.Println("Cache hit")
-
 		if err != nil {
 			return err
 		}
-
 		return nil
 	}
 
