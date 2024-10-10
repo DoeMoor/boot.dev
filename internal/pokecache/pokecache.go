@@ -21,6 +21,10 @@ type cacheEntry struct {
 var cache *PokeCache
 var lock sync.Mutex
 
+// GetCache returns a pointer to the cache instance.
+// If the cache instance does not exist, it will create a new one.
+// The cache instance is a singleton.
+// The cache instance runs a goroutine in the background to remove expired entries.
 func GetCache() *PokeCache {
 	if cache == nil {
 		lock.Lock()
@@ -36,6 +40,11 @@ func GetCache() *PokeCache {
 	return cache
 }
 
+// Write stores the value associated with the key in the cache.
+// If the key already exists, the value will be overwritten.
+//	cache[key] = cacheEntry{
+// 	createTime: time.Now(),
+// 	value:      value,
 func (pc *PokeCache) Write(key string, value []byte) {
 	pc.mu.Lock()
 	defer pc.mu.Unlock()
@@ -80,6 +89,7 @@ func (pc *PokeCache) isEntryExpired(entryTime time.Time) bool {
 
 // cacheMaintenance is a goroutine that runs in the background and removes expired entries from the cache.
 func (pc *PokeCache) cacheMaintenance() {
+	defer pc.mu.Unlock()
 	for {
 		time.Sleep(pc.maxAge)
 		pc.mu.Lock()

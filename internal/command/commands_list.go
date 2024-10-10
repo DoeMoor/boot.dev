@@ -1,8 +1,10 @@
-package internal
+package command
 
-type cliCommand struct {
-	name string
-	description string
+
+
+type cliCommands struct {
+	Name string
+	Description string
 	Callback func() error
 }
 
@@ -20,32 +22,32 @@ type cliCommand struct {
 	// 	"mapb":
 	// 	description: "Shows the map of the previous location",
 	// 	Callback: commandMapb,
-func GetCliCommandsList() map[string]cliCommand {
-	return map[string]cliCommand{
+func GetCliCommandsList() map[string]cliCommands {
+	return map[string]cliCommands{
 		"help": {
-			name: "help",
-			description: "Prints the help menu",
+			Name: "help",
+			Description: "Prints the help menu",
 			Callback: commandHelp,
 		},
 		"exit": {
-			name: "exit",
-			description: "Exits the Pokedex",
+			Name: "exit",
+			Description: "Exits the Pokedex",
 			Callback: commandExit,
 		},
 		"q": {
-			name: "q",
-			description: "alias - Exits the Pokedex",
+			Name: "q",
+			Description: "alias - Exits the Pokedex",
 			Callback: commandExit,
 		},
 		"map": {
-			name: "map",
-			description: "Shows the map of the current location",
-			Callback: commandMap,
+			Name: "map",
+			Description: "Shows the map of the current location",
+			Callback: NextLocations,
 		},
 		"mapb": {
-			name: "mapb",
-			description: "Shows the map of the previous location",
-			Callback: commandMapb,
+			Name: "mapb",
+			Description: "Shows the map of the previous location",
+			Callback: PreviousLocation,
 		},
 	}
 }

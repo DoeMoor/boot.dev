@@ -4,14 +4,16 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"github.com/DoeMoor/pokedexcli/internal"
+
+	"github.com/DoeMoor/pokedexcli/internal/command"
+	"github.com/DoeMoor/pokedexcli/internal/utility"
 )
 
 func REPL() {
 
-	internal.ClearTerminal()
+	utility.ClearTerminal()
 
-	commandsList := internal.GetCliCommandsList()
+	commandsList := command.GetCliCommandsList()
 	
 	for {
 		fmt.Print("Pokedex > ")
