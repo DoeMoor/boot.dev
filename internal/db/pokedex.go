@@ -3,8 +3,9 @@ package db
 import (
 	"fmt"
 
-	es "github.com/DoeMoor/pokedexcli/internal/endpoint_scheme"
 	"sync"
+
+	es "github.com/DoeMoor/pokedexcli/internal/endpoint_scheme"
 )
 
 type pokedexDB struct {
@@ -58,49 +59,37 @@ func (db *pokedexDB) AddPokemon(p es.Pokemon) {
 	}
 }
 
-func (db *pokedexDB) RemovePokemon(name string, id int) {
+func (db *pokedexDB) RemovePokemon(name string, id int) error {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 	if len(db.inventory.pokemons[name]) == 0 {
-		fmt.Printf("Pokemon %v not in inventory\n", name)
-		return
+		return fmt.Errorf("Pokemon %v not in inventory\n", name)
 	}
 	for index, pokemon := range db.inventory.pokemons[name] {
 		if pokemon.id == id {
 			db.inventory.pokemons[name][index].deleted = true
 			fmt.Printf("Pokemon %v | %v removed from inventory\n", name, id)
-			return
+			return nil
 		}
 	}
+	return fmt.Errorf("Pokemon %v not in inventory\n", name)
 }
 
-func (db *pokedexDB) GetPokemonList() {
+func (db *pokedexDB) GetPokemonsListFromPokedex() (map[string]es.Pokemon ,error){
 	db.mu.Lock()
 	defer db.mu.Unlock()
-	fmt.Println("Pokemons in inventory:")
-	for _, pokemons := range db.inventory.pokemons {
-		for _, pokemon := range pokemons {
-			if !pokemon.deleted {
-				fmt.Printf(" - %v | %v\n", pokemon.name, pokemon.id)
-			}
-		}
+	if db.pokemonList == nil {
+		return nil, fmt.Errorf("No pokemons in inventory")
 	}
+	return db.pokemonList, nil
 }
 
-func (db *pokedexDB) GetPokemonFromInventory(name string, id int) {
+func (db *pokedexDB) GetPokemonFromPokedex(name string) (es.Pokemon, error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
-	if len(db.inventory.pokemons[name]) == 0 {
-		fmt.Printf("Pokemon %v not in inventory\n", name)
-		return
+	pokemon, ok := db.pokemonList[name]
+	if !ok {
+		return es.Pokemon{}, fmt.Errorf("Pokemon %v not in pokedex\n", name)
 	}
-	pokemons := db.inventory.pokemons[name]
-	for _, pokemon := range pokemons {
-		if pokemon.id == id {
-			fmt.Printf("Pokemon %v found in inventory\n %v", name, db.pokemonList[name].Abilities)
-			return
-		}
-	}
-	fmt.Printf("Pokemon %v not in inventory\n", name)
-
+	return pokemon, nil
 }
