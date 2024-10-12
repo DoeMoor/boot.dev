@@ -39,8 +39,17 @@ func ApiCall[T any](url string, scheme *T) error {
 	if err != nil {
 		return err
 	}
-
 	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		fmt.Println("Not Found")
+		return nil
+	}
+
+	if resp.StatusCode > 299 {
+		return fmt.Errorf("apicall status code: %v", resp.Status)
+	}
+
 
 	buffer, err := io.ReadAll(resp.Body)
 	if err != nil {

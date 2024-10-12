@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	scheme "github.com/DoeMoor/pokedexcli/internal/json_scheme"
+	scheme "github.com/DoeMoor/pokedexcli/internal/endpoint_scheme"
 )
 
 type pokemon struct {
@@ -16,10 +16,10 @@ func TestApiCall(t *testing.T) {
 	var resultLoc scheme.Locations
 	var poke pokemon
 	var resultPoke pokemon
-	var urla string = "https://pokeapi.co/api/v2/location-area/?offset=0&limit=5"
+	var pokemonLocationApiUrl string = "https://pokeapi.co/api/v2/location-area/?offset=0&limit=5"
 
 	t.Run(t.Name()+" matched scheme", func(t *testing.T) {
-		err := ApiCall(urla, &loc)
+		err := ApiCall(pokemonLocationApiUrl, &loc)
 		if err != nil {
 			t.Errorf("ApiCall() error = %v", err)
 			return
@@ -31,7 +31,7 @@ func TestApiCall(t *testing.T) {
 	})
 
 	t.Run(t.Name()+" unmatched scheme", func(t *testing.T) {
-		err := ApiCall(urla, &poke)
+		err := ApiCall(pokemonLocationApiUrl, &poke)
 		if err != nil {
 			t.Errorf("ApiCall() error = %v", err)
 			return
