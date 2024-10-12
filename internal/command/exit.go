@@ -6,7 +6,7 @@ import(
 	"github.com/DoeMoor/pokedexcli/internal/utility"
 )
 
-func commandExit() error {
+func commandExit(userInputList []string) error {
 	fmt.Println("Exiting Pokedex")
 	utility.ClearTerminal()
 	os.Exit(0)

@@ -4,13 +4,13 @@ import (
 	"fmt"
 )
 
-func commandHelp() error {
+func commandHelp(userInputList []string) error {
 
 	commandsList := GetCliCommandsList()
 
-	fmt.Println("Welcome to the Pokedex!\n\n Usage:")
-	for key, command := range commandsList {
-		fmt.Printf("  %s: %s\n", key, command.Description)
+	fmt.Println("Welcome to the Pokedex!"," Usage:")
+	for _, cmd := range commandsList {
+		fmt.Printf("  %s: %s\n", cmd.Name, cmd.Description)
 	}
 	fmt.Println("")
 	return nil

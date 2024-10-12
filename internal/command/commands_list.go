@@ -5,7 +5,7 @@ package command
 type cliCommands struct {
 	Name string
 	Description string
-	Callback func() error
+	Callback func([]string) error
 }
 
 //command list
@@ -42,12 +42,22 @@ func GetCliCommandsList() map[string]cliCommands {
 		"map": {
 			Name: "map",
 			Description: "Shows the map of the current location",
-			Callback: NextLocations,
+			Callback: nextLocations,
 		},
 		"mapb": {
 			Name: "mapb",
 			Description: "Shows the map of the previous location",
-			Callback: PreviousLocation,
+			Callback: previousLocation,
+		},
+		"explore": {
+			Name: "explore",
+			Description: "Explore the current location",
+			Callback: explore,
+		},
+		"clear": {
+			Name: "clear",
+			Description: "Clears the terminal",
+			Callback: clear,
 		},
 	}
 }

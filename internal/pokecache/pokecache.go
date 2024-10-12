@@ -11,8 +11,6 @@ type PokeCache struct {
 	maxAge time.Duration
 }
 
-// createTime time.Time
-// value      []byte // response body
 type cacheEntry struct {
 	createTime time.Time
 	value      []byte // response body
@@ -32,7 +30,7 @@ func GetCache() *PokeCache {
 		if cache == nil {
 			cache = &PokeCache{
 				cache:  make(map[string]cacheEntry),
-				maxAge: 5 * time.Second,
+				maxAge: 5 * time.Minute,
 			}
 			go cache.cacheMaintenance()
 		}
@@ -96,12 +94,12 @@ func (pc *PokeCache) isEntryExpired(entryTime time.Time) bool {
 func (pc *PokeCache) cacheMaintenance() {
 	for {
 		time.Sleep(pc.maxAge)
-		pc.mu.RLock()
+		pc.mu.Lock()
 		for key, entry := range pc.cache {
 			if time.Since(entry.createTime) > pc.maxAge {
 				delete(pc.cache, key)
 			}
 		}
-		pc.mu.RUnlock()
+		pc.mu.Unlock()
 	}
 }

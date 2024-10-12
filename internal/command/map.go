@@ -4,23 +4,19 @@ import (
 	"fmt"
 
 	"github.com/DoeMoor/pokedexcli/internal/client"
-	"github.com/DoeMoor/pokedexcli/internal/json_scheme"
+	"github.com/DoeMoor/pokedexcli/internal/endpoint_scheme"
 )
 
-func NextLocations() error {
+func nextLocations(userInputList []string) error {
 
 	url, err := callLocalEndpoint("next")
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 
-	var loc json_scheme.Locations
-
+	var loc endpoint_scheme.Locations
 	err = client.ApiCall(url, &loc)
-
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 
@@ -29,19 +25,15 @@ func NextLocations() error {
 	return nil
 }
 
-func PreviousLocation() error {
+func previousLocation(userInputList []string) error {
 	url, err := callLocalEndpoint("previous")
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 
-	var loc json_scheme.Locations
-
+	var loc endpoint_scheme.Locations
 	err = client.ApiCall(url, &loc)
-
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 
@@ -65,21 +57,23 @@ func callLocalEndpoint(direction string) (string, error) {
 
 	if direction == "next" {
 		if cfg.Next == "" {
-			return cfg.CurrentURL, fmt.Errorf("no next location")
+			fmt.Println("no next location")
+			return cfg.CurrentURL, nil
 		}
 		return cfg.Next, nil
 	}
 
 	if direction == "previous" {
 		if cfg.Previous == "" {
-			return cfg.CurrentURL, fmt.Errorf("no previous location")
+			fmt.Println("no previous location")
+			return cfg.CurrentURL, nil
 		}
 		return cfg.Previous, nil
 	}
 	return cfg.CurrentURL, fmt.Errorf("something wrong in callLocalEndpoint()")
 }
 
-func printLocations(loc json_scheme.Locations) {
+func printLocations(loc endpoint_scheme.Locations) {
 	fmt.Println("Locations:")
 	for _, location := range loc.Results {
 		fmt.Printf(" %v\n", location.Name)
