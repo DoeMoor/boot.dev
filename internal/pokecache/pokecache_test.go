@@ -1,159 +1,91 @@
 package pokecache
 
 import (
-	"reflect"
 	"testing"
 	"time"
 )
 
-func TestGetCache(t *testing.T) {
-	tests := []struct {
-		name string
-		want *PokeCache
-	}{
+func TestPokeCache_WriteAndRead(t *testing.T) {
+	cache := GetCache()
+	cache.Clear() // Clear the cache before starting tests
 
-		// TODO: Add test cases.
+	// Test writing and reading a value
+	key := "testKey"
+	value := []byte("testValue")
+	cache.Write(key, value)
+
+	readValue, found := cache.Read(key)
+	if !found {
+		t.Errorf("Expected key %s to be found", key)
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := GetCache(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("GetCache() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestPokeCache_Write(t *testing.T) {
-
-	tests := []struct {
-		name     string
-		key      string
-		value    []byte
-		expected []byte
-	}{
-		{
-			key:      "Pass",
-			value:    []byte("value1"),
-			expected: []byte("value1"),
-		},
-		{
-			key:      "nil Value",
-			value:    nil,
-			expected: nil,
-		},
-		{
-			key:      "Empty Value",
-			value:    []byte(""),
-			expected: []byte(""),
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(t.Name()+" "+tt.key, func(t *testing.T) {
-			// t.Parallel()
-			GetCache().Write(tt.key, tt.value)
-
-			// Check if the key exists in the cache
-			value, ok := GetCache().Read(tt.key)
-			if !ok {
-				t.Errorf("Write() failed to write key %s", tt.key)
-			}
-			if !reflect.DeepEqual(value, tt.expected) {
-				t.Errorf("Write() failed to write or it is wrong value %s expected %c", value, tt.expected)
-			}
-		})
+	if string(readValue) != string(value) {
+		t.Errorf("Expected value %s, got %s", value, readValue)
 	}
 }
 
-func TestPokeCache_Read(t *testing.T) {
-	type args struct {
-		key string
-	}
-	tests := []struct {
-		name  string
-		pc    *PokeCache
-		args  args
-		want  []byte
-		want1 bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := tt.pc.Read(tt.args.key)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("PokeCache.Read() got = %v, want %v", got, tt.want)
-			}
-			if got1 != tt.want1 {
-				t.Errorf("PokeCache.Read() got1 = %v, want %v", got1, tt.want1)
-			}
-		})
+func TestPokeCache_ExpiredEntry(t *testing.T) {
+	cache := GetCache()
+	cache.Clear() // Clear the cache before starting tests
+
+	// Set maxAge to 1 second for quicker testing
+	cache.SetMaxAge(1)
+	key := "expiringKey"
+	value := []byte("expiringValue")
+	cache.Write(key, value)
+
+	// Wait for the entry to expire
+	time.Sleep(2 * time.Second)
+
+	_, found := cache.Read(key)
+	if found {
+		t.Errorf("Expected key %s to be expired and not found", key)
 	}
 }
 
 func TestPokeCache_Delete(t *testing.T) {
-	type args struct {
-		key string
+	cache := GetCache()
+	cache.Clear() // Clear the cache before starting tests
+
+	key := "deleteKey"
+	value := []byte("deleteValue")
+	cache.Write(key, value)
+
+	// Ensure the key is present before deletion
+	_, found := cache.Read(key)
+	if !found {
+		t.Errorf("Expected key %s to be found before deletion", key)
 	}
-	tests := []struct {
-		name string
-		pc   *PokeCache
-		args args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.pc.Delete(tt.args.key)
-		})
+
+	// Delete the key and check again
+	cache.Delete(key)
+	_, found = cache.Read(key)
+	if found {
+		t.Errorf("Expected key %s to be deleted", key)
 	}
 }
 
 func TestPokeCache_Clear(t *testing.T) {
-	tests := []struct {
-		name string
-		pc   *PokeCache
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.pc.Clear()
-		})
+	cache := GetCache()
+	cache.Clear() // Clear the cache before starting tests
+
+	cache.Write("key1", []byte("value1"))
+	cache.Write("key2", []byte("value2"))
+
+	cache.Clear()
+
+	_, found1 := cache.Read("key1")
+	_, found2 := cache.Read("key2")
+
+	if found1 || found2 {
+		t.Errorf("Expected cache to be cleared")
 	}
 }
 
-func TestPokeCache_isEntryExpired(t *testing.T) {
-	type args struct {
-		entryTime time.Time
-	}
-	tests := []struct {
-		name string
-		pc   *PokeCache
-		args args
-		want bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.pc.isEntryExpired(tt.args.entryTime); got != tt.want {
-				t.Errorf("PokeCache.isEntryExpired() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
+func TestPokeCache_Singleton(t *testing.T) {
+	cache1 := GetCache()
+	cache2 := GetCache()
 
-func TestPokeCache_cacheMaintenance(t *testing.T) {
-	tests := []struct {
-		name string
-		pc   *PokeCache
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.pc.cacheMaintenance()
-		})
+	if cache1 != cache2 {
+		t.Errorf("Expected GetCache to return the same instance")
 	}
 }

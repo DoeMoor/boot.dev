@@ -94,15 +94,14 @@ func (pc *PokeCache) isEntryExpired(entryTime time.Time) bool {
 
 // cacheMaintenance is a goroutine that runs in the background and removes expired entries from the cache.
 func (pc *PokeCache) cacheMaintenance() {
-	defer pc.mu.Unlock()
 	for {
 		time.Sleep(pc.maxAge)
-		pc.mu.Lock()
+		pc.mu.RLock()
 		for key, entry := range pc.cache {
 			if time.Since(entry.createTime) > pc.maxAge {
-				go pc.Delete(key)
+				delete(pc.cache, key)
 			}
 		}
-		pc.mu.Unlock()
+		pc.mu.RUnlock()
 	}
 }
