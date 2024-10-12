@@ -59,6 +59,11 @@ func GetCliCommandsList() map[string]cliCommands {
 			Description: "Clears the terminal",
 			Callback: clear,
 		},
+		"catch": {
+			Name: "catch",
+			Description: "Catch a Pokemon",
+			Callback: catch,
+		},
 	}
 }
 
