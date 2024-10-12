@@ -41,7 +41,7 @@ func throwPokeball(pokemon endpoint_scheme.Pokemon) {
 }
 
 func isCaught(experience int64) bool {
-	if rand.Intn(100) < int(experience) {
+	if rand.Intn(100) > int(experience) {
 		return true
 	}
 	return false
